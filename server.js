@@ -731,10 +731,21 @@ app.get('/api/my-tasks', authenticateToken, async (req, res) => {
   }
 });
 
-// Serve the main page
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
+// Serve React app (production) or fallback to old HTML (development)
+if (process.env.NODE_ENV === 'production') {
+  // Serve React build files
+  app.use(express.static(path.join(__dirname, 'frontend', 'dist')));
+  
+  // Handle React routing - send all non-API requests to React
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'frontend', 'dist', 'index.html'));
+  });
+} else {
+  // Development: serve the old HTML for testing
+  app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  });
+}
 
 // Start server
 app.listen(PORT, '0.0.0.0', () => {
