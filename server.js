@@ -35,10 +35,33 @@ app.get('/api/test-db', async (req, res) => {
     // Simple test query
     const result = await prisma.$queryRaw`SELECT 1 as test, NOW() as timestamp`;
     
+    // Test if new tables exist
+    let tablesStatus = {};
+    try {
+      const tripCount = await prisma.trip.count();
+      const userCount = await prisma.user.count();
+      const listCount = await prisma.tripList.count();
+      const itemCount = await prisma.listItem.count();
+      
+      tablesStatus = {
+        users: userCount,
+        trips: tripCount,
+        tripLists: listCount,
+        listItems: itemCount,
+        newTablesExist: true
+      };
+    } catch (tableError) {
+      tablesStatus = {
+        newTablesExist: false,
+        error: tableError.message
+      };
+    }
+    
     res.json({
       success: true,
       message: 'Database connection successful!',
       data: result,
+      tables: tablesStatus,
       timestamp: new Date().toISOString()
     });
   } catch (error) {
