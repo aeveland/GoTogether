@@ -15,6 +15,42 @@ model User {
   password  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  
+  // Relations
+  createdTrips Trip[] @relation("TripCreator")
+  tripParticipants TripParticipant[]
+}
+
+// Trip model
+model Trip {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  location    String?
+  startDate   DateTime
+  endDate     DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  createdById Int
+  createdBy   User @relation("TripCreator", fields: [createdById], references: [id])
+  participants TripParticipant[]
+}
+
+// Trip participants (many-to-many relationship)
+model TripParticipant {
+  id     Int @id @default(autoincrement())
+  userId Int
+  tripId Int
+  role   String @default("participant") // "creator", "admin", "participant"
+  joinedAt DateTime @default(now())
+  
+  // Relations
+  user User @relation(fields: [userId], references: [id])
+  trip Trip @relation(fields: [tripId], references: [id])
+  
+  @@unique([userId, tripId])
 }
 
 // Keep test model for now

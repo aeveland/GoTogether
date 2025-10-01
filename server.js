@@ -195,6 +195,237 @@ app.get('/api/auth/me', authenticateToken, async (req, res) => {
   }
 });
 
+// === TRIP MANAGEMENT ENDPOINTS ===
+
+// Get all trips for the authenticated user
+app.get('/api/trips', authenticateToken, async (req, res) => {
+  try {
+    const trips = await prisma.trip.findMany({
+      where: {
+        OR: [
+          { createdById: req.user.id },
+          { participants: { some: { userId: req.user.id } } }
+        ]
+      },
+      include: {
+        createdBy: {
+          select: { id: true, name: true, email: true }
+        },
+        participants: {
+          include: {
+            user: {
+              select: { id: true, name: true, email: true }
+            }
+          }
+        }
+      },
+      orderBy: { startDate: 'asc' }
+    });
+
+    res.json({
+      success: true,
+      trips
+    });
+  } catch (error) {
+    console.error('Get trips error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Create a new trip
+app.post('/api/trips', authenticateToken, async (req, res) => {
+  try {
+    const { title, description, location, startDate, endDate } = req.body;
+
+    if (!title || !startDate || !endDate) {
+      return res.status(400).json({ error: 'Title, start date, and end date are required' });
+    }
+
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    if (start >= end) {
+      return res.status(400).json({ error: 'End date must be after start date' });
+    }
+
+    const trip = await prisma.trip.create({
+      data: {
+        title,
+        description,
+        location,
+        startDate: start,
+        endDate: end,
+        createdById: req.user.id
+      },
+      include: {
+        createdBy: {
+          select: { id: true, name: true, email: true }
+        },
+        participants: {
+          include: {
+            user: {
+              select: { id: true, name: true, email: true }
+            }
+          }
+        }
+      }
+    });
+
+    // Add creator as a participant with "creator" role
+    await prisma.tripParticipant.create({
+      data: {
+        userId: req.user.id,
+        tripId: trip.id,
+        role: 'creator'
+      }
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Trip created successfully',
+      trip
+    });
+  } catch (error) {
+    console.error('Create trip error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Get a specific trip
+app.get('/api/trips/:id', authenticateToken, async (req, res) => {
+  try {
+    const tripId = parseInt(req.params.id);
+
+    const trip = await prisma.trip.findFirst({
+      where: {
+        id: tripId,
+        OR: [
+          { createdById: req.user.id },
+          { participants: { some: { userId: req.user.id } } }
+        ]
+      },
+      include: {
+        createdBy: {
+          select: { id: true, name: true, email: true }
+        },
+        participants: {
+          include: {
+            user: {
+              select: { id: true, name: true, email: true }
+            }
+          }
+        }
+      }
+    });
+
+    if (!trip) {
+      return res.status(404).json({ error: 'Trip not found or access denied' });
+    }
+
+    res.json({
+      success: true,
+      trip
+    });
+  } catch (error) {
+    console.error('Get trip error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Update a trip (only creator can update)
+app.put('/api/trips/:id', authenticateToken, async (req, res) => {
+  try {
+    const tripId = parseInt(req.params.id);
+    const { title, description, location, startDate, endDate } = req.body;
+
+    // Check if user is the creator
+    const existingTrip = await prisma.trip.findFirst({
+      where: {
+        id: tripId,
+        createdById: req.user.id
+      }
+    });
+
+    if (!existingTrip) {
+      return res.status(404).json({ error: 'Trip not found or you do not have permission to edit' });
+    }
+
+    const updateData = {};
+    if (title) updateData.title = title;
+    if (description !== undefined) updateData.description = description;
+    if (location !== undefined) updateData.location = location;
+    if (startDate) updateData.startDate = new Date(startDate);
+    if (endDate) updateData.endDate = new Date(endDate);
+
+    if (updateData.startDate && updateData.endDate && updateData.startDate >= updateData.endDate) {
+      return res.status(400).json({ error: 'End date must be after start date' });
+    }
+
+    const trip = await prisma.trip.update({
+      where: { id: tripId },
+      data: updateData,
+      include: {
+        createdBy: {
+          select: { id: true, name: true, email: true }
+        },
+        participants: {
+          include: {
+            user: {
+              select: { id: true, name: true, email: true }
+            }
+          }
+        }
+      }
+    });
+
+    res.json({
+      success: true,
+      message: 'Trip updated successfully',
+      trip
+    });
+  } catch (error) {
+    console.error('Update trip error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Delete a trip (only creator can delete)
+app.delete('/api/trips/:id', authenticateToken, async (req, res) => {
+  try {
+    const tripId = parseInt(req.params.id);
+
+    // Check if user is the creator
+    const existingTrip = await prisma.trip.findFirst({
+      where: {
+        id: tripId,
+        createdById: req.user.id
+      }
+    });
+
+    if (!existingTrip) {
+      return res.status(404).json({ error: 'Trip not found or you do not have permission to delete' });
+    }
+
+    // Delete participants first (due to foreign key constraints)
+    await prisma.tripParticipant.deleteMany({
+      where: { tripId }
+    });
+
+    // Delete the trip
+    await prisma.trip.delete({
+      where: { id: tripId }
+    });
+
+    res.json({
+      success: true,
+      message: 'Trip deleted successfully'
+    });
+  } catch (error) {
+    console.error('Delete trip error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Serve the main page
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
