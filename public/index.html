@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoTogether - Railway Edition</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+        }
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        .status {
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .loading { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .ready { background: #e2e3e5; color: #383d41; border: 1px solid #d6d8db; }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            margin: 10px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .results {
+            margin-top: 20px;
+            text-align: left;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+        .results pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: 14px;
+            color: #495057;
+        }
+        
+        .step {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 GoTogether</h1>
+        <p class="subtitle">Railway Edition - Built for Success <span class="step">STEP 1</span></p>
+        
+        <div id="status" class="status ready">
+            ✅ Server is running! Ready to test database connection.
+        </div>
+        
+        <div>
+            <button onclick="testHealth()">Test Server Health</button>
+            <button onclick="testDB()">Test Database</button>
+            <button onclick="location.reload()">Refresh</button>
+        </div>
+        
+        <div id="results"></div>
+    </div>
+
+    <script>
+        // Show that page loaded
+        console.log('✅ GoTogether Railway Edition loaded successfully!');
+        
+        async function testHealth() {
+            const statusDiv = document.getElementById('status');
+            const resultsDiv = document.getElementById('results');
+            
+            statusDiv.className = 'status loading';
+            statusDiv.textContent = '🔄 Testing server health...';
+            
+            try {
+                const response = await fetch('/health');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    statusDiv.className = 'status success';
+                    statusDiv.textContent = '✅ Server health check passed!';
+                    resultsDiv.innerHTML = `<div class="results"><pre>${JSON.stringify(data, null, 2)}</pre></div>`;
+                } else {
+                    throw new Error('Health check failed');
+                }
+            } catch (error) {
+                statusDiv.className = 'status error';
+                statusDiv.textContent = `❌ Server health check failed: ${error.message}`;
+                resultsDiv.innerHTML = '';
+            }
+        }
+        
+        async function testDB() {
+            const statusDiv = document.getElementById('status');
+            const resultsDiv = document.getElementById('results');
+            
+            statusDiv.className = 'status loading';
+            statusDiv.textContent = '🔄 Testing database connection...';
+            
+            try {
+                const response = await fetch('/api/test-db');
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    statusDiv.className = 'status success';
+                    statusDiv.textContent = '✅ Database connection successful!';
+                    resultsDiv.innerHTML = `<div class="results"><pre>${JSON.stringify(data, null, 2)}</pre></div>`;
+                } else {
+                    throw new Error(data.error || 'Database test failed');
+                }
+            } catch (error) {
+                statusDiv.className = 'status error';
+                statusDiv.textContent = `❌ Database connection failed: ${error.message}`;
+                resultsDiv.innerHTML = '';
+            }
+        }
+        
+        // Auto-test health on load
+        setTimeout(testHealth, 1000);
+    </script>
+</body>
+</html>

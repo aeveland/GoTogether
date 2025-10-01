@@ -7,9 +7,10 @@ datasource db {
   url = env("DATABASE_URL")
 }
 
-// Simple test model
-model TestConnection {
+// Simple test model to verify DB connection
+model HealthCheck {
   id        Int      @id @default(autoincrement())
-  message   String
+  message   String   @default("Railway DB is working!")
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
