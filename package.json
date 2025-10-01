@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "start": "node server.js",
+    "start": "prisma db push && node server.js",
     "dev": "node server.js",
-    "build": "echo 'No build needed'"
+    "build": "prisma generate"
   },
   "dependencies": {
     "@prisma/client": "^5.3.1",
