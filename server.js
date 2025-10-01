@@ -426,6 +426,288 @@ app.delete('/api/trips/:id', authenticateToken, async (req, res) => {
   }
 });
 
+// === LIST MANAGEMENT ENDPOINTS ===
+
+// Get all lists for a trip
+app.get('/api/trips/:tripId/lists', authenticateToken, async (req, res) => {
+  try {
+    const tripId = parseInt(req.params.tripId);
+
+    // Check if user has access to this trip
+    const trip = await prisma.trip.findFirst({
+      where: {
+        id: tripId,
+        OR: [
+          { createdById: req.user.id },
+          { participants: { some: { userId: req.user.id } } }
+        ]
+      }
+    });
+
+    if (!trip) {
+      return res.status(404).json({ error: 'Trip not found or access denied' });
+    }
+
+    const lists = await prisma.tripList.findMany({
+      where: { tripId },
+      include: {
+        items: {
+          include: {
+            assignedTo: {
+              select: { id: true, name: true, email: true }
+            },
+            createdBy: {
+              select: { id: true, name: true, email: true }
+            }
+          },
+          orderBy: [
+            { status: 'asc' },
+            { priority: 'desc' },
+            { createdAt: 'asc' }
+          ]
+        }
+      },
+      orderBy: { createdAt: 'asc' }
+    });
+
+    res.json({
+      success: true,
+      lists
+    });
+  } catch (error) {
+    console.error('Get lists error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Create a new list for a trip
+app.post('/api/trips/:tripId/lists', authenticateToken, async (req, res) => {
+  try {
+    const tripId = parseInt(req.params.tripId);
+    const { title, type, description } = req.body;
+
+    if (!title || !type) {
+      return res.status(400).json({ error: 'Title and type are required' });
+    }
+
+    if (!['SHOPPING', 'TODO', 'INFO'].includes(type)) {
+      return res.status(400).json({ error: 'Type must be SHOPPING, TODO, or INFO' });
+    }
+
+    // Check if user has access to this trip
+    const trip = await prisma.trip.findFirst({
+      where: {
+        id: tripId,
+        OR: [
+          { createdById: req.user.id },
+          { participants: { some: { userId: req.user.id } } }
+        ]
+      }
+    });
+
+    if (!trip) {
+      return res.status(404).json({ error: 'Trip not found or access denied' });
+    }
+
+    const list = await prisma.tripList.create({
+      data: {
+        tripId,
+        title,
+        type,
+        description
+      },
+      include: {
+        items: {
+          include: {
+            assignedTo: {
+              select: { id: true, name: true, email: true }
+            },
+            createdBy: {
+              select: { id: true, name: true, email: true }
+            }
+          }
+        }
+      }
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'List created successfully',
+      list
+    });
+  } catch (error) {
+    console.error('Create list error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Add item to a list
+app.post('/api/trips/:tripId/lists/:listId/items', authenticateToken, async (req, res) => {
+  try {
+    const tripId = parseInt(req.params.tripId);
+    const listId = parseInt(req.params.listId);
+    const { title, description, priority, dueDate, assignedToId } = req.body;
+
+    if (!title) {
+      return res.status(400).json({ error: 'Title is required' });
+    }
+
+    // Check if user has access to this trip
+    const trip = await prisma.trip.findFirst({
+      where: {
+        id: tripId,
+        OR: [
+          { createdById: req.user.id },
+          { participants: { some: { userId: req.user.id } } }
+        ]
+      }
+    });
+
+    if (!trip) {
+      return res.status(404).json({ error: 'Trip not found or access denied' });
+    }
+
+    // Check if list belongs to this trip
+    const list = await prisma.tripList.findFirst({
+      where: { id: listId, tripId }
+    });
+
+    if (!list) {
+      return res.status(404).json({ error: 'List not found' });
+    }
+
+    const item = await prisma.listItem.create({
+      data: {
+        listId,
+        title,
+        description,
+        priority: priority || 'MEDIUM',
+        dueDate: dueDate ? new Date(dueDate) : null,
+        assignedToId: assignedToId || null,
+        createdById: req.user.id
+      },
+      include: {
+        assignedTo: {
+          select: { id: true, name: true, email: true }
+        },
+        createdBy: {
+          select: { id: true, name: true, email: true }
+        }
+      }
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Item added successfully',
+      item
+    });
+  } catch (error) {
+    console.error('Add item error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Update a list item
+app.patch('/api/trips/:tripId/lists/:listId/items/:itemId', authenticateToken, async (req, res) => {
+  try {
+    const tripId = parseInt(req.params.tripId);
+    const listId = parseInt(req.params.listId);
+    const itemId = parseInt(req.params.itemId);
+    const { title, description, priority, status, dueDate, assignedToId } = req.body;
+
+    // Check if user has access to this trip
+    const trip = await prisma.trip.findFirst({
+      where: {
+        id: tripId,
+        OR: [
+          { createdById: req.user.id },
+          { participants: { some: { userId: req.user.id } } }
+        ]
+      }
+    });
+
+    if (!trip) {
+      return res.status(404).json({ error: 'Trip not found or access denied' });
+    }
+
+    // Check if item exists and belongs to the list
+    const existingItem = await prisma.listItem.findFirst({
+      where: { id: itemId, listId }
+    });
+
+    if (!existingItem) {
+      return res.status(404).json({ error: 'Item not found' });
+    }
+
+    const updateData = {};
+    if (title !== undefined) updateData.title = title;
+    if (description !== undefined) updateData.description = description;
+    if (priority !== undefined) updateData.priority = priority;
+    if (status !== undefined) updateData.status = status;
+    if (dueDate !== undefined) updateData.dueDate = dueDate ? new Date(dueDate) : null;
+    if (assignedToId !== undefined) updateData.assignedToId = assignedToId;
+
+    const item = await prisma.listItem.update({
+      where: { id: itemId },
+      data: updateData,
+      include: {
+        assignedTo: {
+          select: { id: true, name: true, email: true }
+        },
+        createdBy: {
+          select: { id: true, name: true, email: true }
+        }
+      }
+    });
+
+    res.json({
+      success: true,
+      message: 'Item updated successfully',
+      item
+    });
+  } catch (error) {
+    console.error('Update item error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Get user's assigned tasks across all trips
+app.get('/api/my-tasks', authenticateToken, async (req, res) => {
+  try {
+    const tasks = await prisma.listItem.findMany({
+      where: {
+        assignedToId: req.user.id,
+        status: { not: 'COMPLETED' }
+      },
+      include: {
+        list: {
+          include: {
+            trip: {
+              select: { id: true, title: true, startDate: true, endDate: true }
+            }
+          }
+        },
+        createdBy: {
+          select: { id: true, name: true, email: true }
+        }
+      },
+      orderBy: [
+        { priority: 'desc' },
+        { dueDate: 'asc' },
+        { createdAt: 'asc' }
+      ]
+    });
+
+    res.json({
+      success: true,
+      tasks
+    });
+  } catch (error) {
+    console.error('Get my tasks error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Serve the main page
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
