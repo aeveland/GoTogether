@@ -6,7 +6,9 @@
     "start": "prisma db push && node server.js",
     "dev": "node server.js",
     "build": "prisma generate && cd frontend && npm install && npm run build",
-    "build:frontend": "cd frontend && npm run build"
+    "build:frontend": "cd frontend && npm run build",
+    "railway:build": "npm run build",
+    "railway:start": "npm start"
   },
   "dependencies": {
     "@prisma/client": "^5.3.1",
