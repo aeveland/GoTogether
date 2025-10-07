@@ -47,7 +47,7 @@ export default function LoginForm() {
         <div className="text-center">
           <div className="flex justify-center mb-6">
             <div className="bg-gradient-to-r from-primary-500 to-secondary-500 p-3 rounded-full">
-              <span className="text-2xl">🚀</span>
+              <span className="text-2xl font-bold text-white">GT</span>
             </div>
           </div>
           <h2 className="text-3xl font-bold text-gray-900">
@@ -154,7 +154,7 @@ export default function LoginForm() {
 
         {/* Demo info */}
         <div className="text-center text-sm text-gray-500">
-          <p>🚀 Built for collaborative trip planning</p>
+          <p>Built for collaborative trip planning</p>
         </div>
       </div>
     </div>

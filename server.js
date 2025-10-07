@@ -746,7 +746,7 @@ app.get('*', (req, res) => {
 
 // Start server
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 GoTogether server running on port ${PORT}`);
+  console.log(`GoTogether server running on port ${PORT}`);
   console.log(`📊 Health check: http://localhost:${PORT}/health`);
   console.log(`🗄️  Database test: http://localhost:${PORT}/api/test-db`);
 });

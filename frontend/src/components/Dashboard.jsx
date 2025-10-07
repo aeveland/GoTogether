@@ -32,7 +32,7 @@ export default function Dashboard() {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
               <div className="bg-gradient-to-r from-primary-500 to-secondary-500 p-2 rounded-lg mr-3">
-                <span className="text-white text-lg">🚀</span>
+                <span className="text-white text-lg font-bold">GT</span>
               </div>
               <h1 className="text-xl font-bold text-gray-900">GoTogether</h1>
             </div>
