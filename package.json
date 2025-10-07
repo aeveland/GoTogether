@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "start": "prisma generate && node server.js",
+    "start": "node server.js",
     "dev": "node server.js",
-    "build": "cd frontend && npm install && npm run build"
+    "build": "prisma generate && cd frontend && npm install && npm run build",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@prisma/client": "^5.3.1",
