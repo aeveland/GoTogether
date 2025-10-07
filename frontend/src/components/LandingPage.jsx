@@ -38,23 +38,23 @@ export default function LandingPage() {
         </div>
       </nav>
 
-      {/* Hero Section */}
+      {/* Hero Section with RV Background */}
       <section 
         className="relative overflow-hidden min-h-screen flex items-center bg-cover bg-center bg-no-repeat"
         style={{
           backgroundImage: 'url(/RVHero.jpeg)',
         }}
       >
-        {/* Overlay for better text readability */}
+        {/* Dark overlay for text readability */}
         <div className="absolute inset-0 bg-black bg-opacity-50" />
         
-        {/* Content */}
+        {/* Hero Content */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
           <div className="text-center">
             <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 drop-shadow-2xl">
               Plan Amazing Trips
               <span className="block text-white drop-shadow-2xl">
-                Together - UPDATED!
+                Together
               </span>
             </h1>
             <p className="text-xl text-white mb-8 max-w-3xl mx-auto drop-shadow-xl font-medium">
@@ -89,7 +89,6 @@ export default function LandingPage() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
-            {/* Feature 1 */}
             <div className="text-center p-8 rounded-2xl bg-gradient-to-br from-primary-50 to-primary-100 border border-primary-200">
               <div className="bg-primary-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
                 <span className="text-2xl">📋</span>
@@ -100,7 +99,6 @@ export default function LandingPage() {
               </p>
             </div>
 
-            {/* Feature 2 */}
             <div className="text-center p-8 rounded-2xl bg-gradient-to-br from-secondary-50 to-secondary-100 border border-secondary-200">
               <div className="bg-secondary-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
                 <span className="text-2xl">✅</span>
@@ -111,7 +109,6 @@ export default function LandingPage() {
               </p>
             </div>
 
-            {/* Feature 3 */}
             <div className="text-center p-8 rounded-2xl bg-gradient-to-br from-primary-50 to-secondary-50 border border-gray-200">
               <div className="bg-gradient-to-r from-primary-500 to-secondary-500 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6">
                 <span className="text-2xl">👥</span>

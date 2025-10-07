@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
-import LandingPage from './components/LandingPage'
+import NewLandingPage from './components/NewLandingPage'
 import Dashboard from './components/Dashboard'
 
 function AppContent() {
@@ -19,7 +19,7 @@ function AppContent() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-50 to-secondary-50">
-      {user ? <Dashboard /> : <LandingPage />}
+      {user ? <Dashboard /> : <NewLandingPage />}
     </div>
   )
 }
