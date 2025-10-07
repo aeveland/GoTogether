@@ -741,7 +741,23 @@ app.get('/legacy', (req, res) => {
 
 // Handle React routing - send all other non-API requests to React
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'frontend', 'dist', 'index.html'));
+  const indexPath = path.join(__dirname, 'frontend', 'dist', 'index.html');
+  
+  // Check if the built frontend exists
+  if (require('fs').existsSync(indexPath)) {
+    res.sendFile(indexPath);
+  } else {
+    // Fallback response if frontend build is missing
+    res.status(503).send(`
+      <html>
+        <body>
+          <h1>GoTogether</h1>
+          <p>Frontend is building... Please refresh in a moment.</p>
+          <p>If this persists, the build may have failed.</p>
+        </body>
+      </html>
+    `);
+  }
 });
 
 // Start server
