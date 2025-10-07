@@ -50,7 +50,8 @@ app.get('/health', (req, res) => {
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
     env: process.env.NODE_ENV || 'development',
-    port: PORT
+    port: PORT,
+    cors: 'updated' // Force deployment trigger
   });
 });
 
