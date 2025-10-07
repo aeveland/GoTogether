@@ -23,8 +23,24 @@ try {
   console.error('Failed to initialize Prisma client:', error);
   process.exit(1);
 }
+// CORS configuration
+const corsOptions = {
+  origin: [
+    'http://localhost:5173', // Vite dev server
+    'http://localhost:3000', // Local backend
+    'https://gotogether-production.up.railway.app', // Production backend
+    'https://gotogether.vercel.app', // If you have a Vercel frontend
+    'https://gotogether-frontend.vercel.app', // Alternative Vercel URL
+    /^https:\/\/.*\.vercel\.app$/, // Any Vercel deployment
+    /^https:\/\/.*\.netlify\.app$/, // Any Netlify deployment
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+};
+
 // Middleware
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Health check endpoint
