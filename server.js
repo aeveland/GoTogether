@@ -9,6 +9,9 @@ import jwt from 'jsonwebtoken';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Define PORT
+const PORT = process.env.PORT || 3000;
+
 const app = express();
 
 // Initialize Prisma client with error handling
