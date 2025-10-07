@@ -5,7 +5,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
-    "build": "prisma generate && prisma db push && cd frontend && npm install && npm run build",
+    "build": "prisma generate && cd frontend && npm install && npm run build",
     "build:frontend": "cd frontend && npm run build",
     "postinstall": "npm run build"
   },
@@ -14,7 +14,8 @@
     "express": "^4.18.2",
     "cors": "^2.8.5",
     "bcryptjs": "^2.4.3",
-    "jsonwebtoken": "^9.0.2"
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.11.3"
   },
   "devDependencies": {
     "prisma": "^5.3.1"
