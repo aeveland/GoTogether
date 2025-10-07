@@ -10,20 +10,34 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const prisma = new PrismaClient();
-const PORT = process.env.PORT || 3000;
 
+// Initialize Prisma client with error handling
+let prisma;
+try {
+  prisma = new PrismaClient();
+  console.log('Prisma client initialized successfully');
+} catch (error) {
+  console.error('Failed to initialize Prisma client:', error);
+  process.exit(1);
+}
 // Middleware
 app.use(cors());
 app.use(express.json());
 
-// Health check
+// Health check endpoint
 app.get('/health', (req, res) => {
   res.json({ 
     status: 'ok', 
     timestamp: new Date().toISOString(),
-    message: 'GoTogether Railway Server is running!' 
+    uptime: process.uptime(),
+    env: process.env.NODE_ENV || 'development',
+    port: PORT
   });
+});
+
+// Simple ping endpoint
+app.get('/ping', (req, res) => {
+  res.send('pong');
 });
 
 // Database test endpoint
@@ -760,11 +774,25 @@ app.get('*', (req, res) => {
   }
 });
 
+// Add error handling for uncaught exceptions
+process.on('uncaughtException', (error) => {
+  console.error('Uncaught Exception:', error);
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  process.exit(1);
+});
+
 // Start server
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`GoTogether server running on port ${PORT}`);
   console.log(`📊 Health check: http://localhost:${PORT}/health`);
   console.log(`🗄️  Database test: http://localhost:${PORT}/api/test-db`);
+}).on('error', (err) => {
+  console.error('Server failed to start:', err);
+  process.exit(1);
 });
 
 // Graceful shutdown
