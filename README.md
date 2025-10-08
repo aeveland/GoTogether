@@ -1,16 +1,67 @@
-# React + Vite
+# GoTogether
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+One-sentence description: A social / event / planner app (or whatever GoTogether is).
 
-Currently, two official plugins are available:
+## Table of Contents
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+1. [Overview](#overview)  
+2. [Features](#features)  
+3. [Architecture & Stack](#architecture--stack)  
+4. [Getting Started](#getting-started)  
+   * [Prerequisites](#prerequisites)  
+   * [Installation](#installation)  
+   * [Running Locally](#running-locally)  
+   * [Environment Variables / Configuration](#environment-variables--configuration)  
+5. [Deployment](#deployment)  
+6. [Usage](#usage)  
+7. [Contributing](#contributing)  
+8. [License](#license)  
+9. [Contact / Support](#contact--support)
 
-## React Compiler
+## Overview
 
-The React Compiler is not enabled on this template. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+GoTogether is a (web/mobile) application that allows users to (briefly describe the core value): e.g. create events, invite friends, coordinate logistics, share status, etc.
 
-## Expanding the ESLint configuration
+This repository holds both the frontend and backend (or server) components.  
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Live demo (if exists): `https://go-together-pink.vercel.app`  [oai_citation:0‡GitHub](https://github.com/aeveland/GoTogether)
+
+## Features
+
+- User registration / login  
+- Create, edit, delete events  
+- Invite participants / RSVP  
+- Notifications / reminders  
+- Real-time updates / presence  
+- (Any other distinguishing features)
+
+## Architecture & Stack
+
+- **Frontend**: built with React + Vite  [oai_citation:1‡GitHub](https://github.com/aeveland/GoTogether)  
+- **Backend / Server**: Node.js (check `server.js` and `simple-server.js`)  [oai_citation:2‡GitHub](https://github.com/aeveland/GoTogether)  
+- **Database / ORM / Persistence**: (You have a `prisma` directory, so Prisma is used)  [oai_citation:3‡GitHub](https://github.com/aeveland/GoTogether)  
+- **Deployment / Hosting**: (Docker, Vercel, Railway, etc — there’s a `Dockerfile` and `railway.toml`)  [oai_citation:4‡GitHub](https://github.com/aeveland/GoTogether)  
+- **Static / Public Assets**: in `public/`  [oai_citation:5‡GitHub](https://github.com/aeveland/GoTogether)  
+
+## Getting Started
+
+### Prerequisites
+
+Make sure you have:
+
+- Node.js (version X or higher)  
+- npm or yarn  
+- (If using Docker) Docker & Docker Compose  
+- A database supported by Prisma (e.g. PostgreSQL, MySQL, SQLite)  
+
+### Installation
+
+```bash
+# clone the repo
+git clone https://github.com/aeveland/GoTogether.git
+cd GoTogether
+
+# install dependencies
+npm install
+# or
+yarn install
