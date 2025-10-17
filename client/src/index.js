@@ -301,21 +301,21 @@ function showDashboard(user) {
                                     style="background: linear-gradient(135deg, #48bb78, #38a169); color: white; border: none; padding: 18px; border-radius: 12px; font-size: 16px; cursor: pointer; font-weight: 600; transition: transform 0.2s, box-shadow 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px;"
                                     onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 20px rgba(72,187,120,0.3)'"
                                     onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
-                                <span style="font-size: 18px; font-weight: bold;">+</span>
+                                <i class="material-icons" style="font-size: 20px;">add</i>
                                 Create New Trip
                             </button>
                             <button onclick="showJoinTripForm()" 
                                     style="background: linear-gradient(135deg, #4299e1, #3182ce); color: white; border: none; padding: 18px; border-radius: 12px; font-size: 16px; cursor: pointer; font-weight: 600; transition: transform 0.2s, box-shadow 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px;"
                                     onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 20px rgba(66,153,225,0.3)'"
                                     onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
-                                <span style="font-size: 18px; font-weight: bold;">→</span>
+                                <i class="material-icons" style="font-size: 20px;">group_add</i>
                                 Join Existing Trip
                             </button>
                             <button onclick="browseTrips()" 
                                     style="background: linear-gradient(135deg, #9f7aea, #805ad5); color: white; border: none; padding: 18px; border-radius: 12px; font-size: 16px; cursor: pointer; font-weight: 600; transition: transform 0.2s, box-shadow 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px; opacity: 0.6;"
                                     onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 20px rgba(159,122,234,0.3)'"
                                     onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
-                                <span style="font-size: 18px; font-weight: bold;">◎</span>
+                                <i class="material-icons" style="font-size: 20px;">explore</i>
                                 Browse Public Trips (Soon)
                             </button>
                         </div>
@@ -348,7 +348,7 @@ function showDashboard(user) {
                     <div id="trips-container">
                         ${userTrips.length === 0 ? `
                             <div style="text-align: center; padding: 60px 20px; color: #718096;">
-                                <div style="font-size: 48px; margin-bottom: 20px; color: #9ca3af; font-weight: bold;">◇</div>
+                                <i class="material-icons" style="font-size: 64px; margin-bottom: 20px; color: #9ca3af;">luggage</i>
                                 <h3 style="margin: 0 0 10px 0; font-size: 18px; font-weight: 600; color: #4a5568;">No trips yet</h3>
                                 <p style="margin: 0 0 25px 0; font-size: 14px;">Create your first trip to start planning your adventure!</p>
                                 <button onclick="showCreateTripForm()" 
@@ -373,15 +373,15 @@ function showDashboard(user) {
                                         </div>
                                         <div style="margin-bottom: 15px;">
                                             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; color: #6b7280; font-size: 14px;">
-                                                <span style="font-weight: bold;">●</span>
+                                                <i class="material-icons" style="font-size: 16px;">place</i>
                                                 <span>${trip.location || 'Location TBD'}</span>
                                             </div>
                                             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; color: #6b7280; font-size: 14px;">
-                                                <span style="font-weight: bold;">▢</span>
+                                                <i class="material-icons" style="font-size: 16px;">event</i>
                                                 <span>${formatDate(trip.startDate)} - ${formatDate(trip.endDate)}</span>
                                             </div>
                                             <div style="display: flex; align-items: center; gap: 8px; color: #6b7280; font-size: 14px;">
-                                                <span style="font-weight: bold;">◦</span>
+                                                <i class="material-icons" style="font-size: 16px;">group</i>
                                                 <span>${trip.members.length} member${trip.members.length !== 1 ? 's' : ''}</span>
                                             </div>
                                         </div>
@@ -428,7 +428,7 @@ window.showCreateTripForm = function() {
                 <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 30px;">
                     <button onclick="showDashboard(JSON.parse(localStorage.getItem('gotogether_user')))" 
                             style="background: #e5e7eb; border: none; padding: 10px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
-                        <span style="font-size: 18px;">←</span>
+                        <i class="material-icons" style="font-size: 20px;">arrow_back</i>
                     </button>
                     <div>
                         <h1 style="margin: 0; font-size: 24px; color: #1a202c;">Create New Trip</h1>
@@ -664,14 +664,14 @@ window.viewTrip = function(tripId) {
                 <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 30px;">
                     <button onclick="showDashboard(JSON.parse(localStorage.getItem('gotogether_user')))" 
                             style="background: #e5e7eb; border: none; padding: 10px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
-                        <span style="font-size: 18px;">←</span>
+                        <i class="material-icons" style="font-size: 20px;">arrow_back</i>
                     </button>
                     <div style="flex: 1;">
                         <h1 style="margin: 0; font-size: 24px; color: #1a202c;">${trip.name}</h1>
                         <div style="display: flex; align-items: center; gap: 20px; margin-top: 5px; color: #6b7280; font-size: 14px;">
-                            <span><span style="font-weight: bold;">●</span> ${trip.location}</span>
-                            <span><span style="font-weight: bold;">▢</span> ${formatDate(trip.startDate)} - ${formatDate(trip.endDate)}</span>
-                            <span><span style="font-weight: bold;">◦</span> ${trip.members.length} member${trip.members.length !== 1 ? 's' : ''}</span>
+                            <span style="display: flex; align-items: center; gap: 4px;"><i class="material-icons" style="font-size: 16px;">place</i> ${trip.location}</span>
+                            <span style="display: flex; align-items: center; gap: 4px;"><i class="material-icons" style="font-size: 16px;">event</i> ${formatDate(trip.startDate)} - ${formatDate(trip.endDate)}</span>
+                            <span style="display: flex; align-items: center; gap: 4px;"><i class="material-icons" style="font-size: 16px;">group</i> ${trip.members.length} member${trip.members.length !== 1 ? 's' : ''}</span>
                         </div>
                     </div>
                     <div style="display: flex; align-items: center; gap: 10px;">
@@ -743,7 +743,7 @@ window.viewTrip = function(tripId) {
                 <!-- Quick Actions -->
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                     <div style="background: white; padding: 20px; border-radius: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: center;">
-                        <div style="font-size: 32px; margin-bottom: 10px; color: #10b981; font-weight: bold;">◈</div>
+                        <i class="material-icons" style="font-size: 48px; margin-bottom: 10px; color: #10b981;">local_activity</i>
                         <h4 style="margin: 0 0 10px 0; color: #1a202c;">Activities</h4>
                         <p style="margin: 0 0 15px 0; color: #6b7280; font-size: 14px;">Plan what you'll do</p>
                         <button style="background: #10b981; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600;">
@@ -751,16 +751,16 @@ window.viewTrip = function(tripId) {
                         </button>
                     </div>
                     <div style="background: white; padding: 20px; border-radius: 16px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: center;">
-                        <div style="font-size: 32px; margin-bottom: 10px; color: #f59e0b; font-weight: bold;">◐</div>
+                        <i class="material-icons" style="font-size: 48px; margin-bottom: 10px; color: #f59e0b;">inventory</i>
                         <h4 style="margin: 0 0 10px 0; color: #1a202c;">Packing List</h4>
                         <p style="margin: 0 0 15px 0; color: #6b7280; font-size: 14px;">What to bring</p>
-                        <button style="background: #f59e0b; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                        <button style="background: #f59e0b; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
                             Manage Packing
                         </button>
                     </div>
                 </div>
                 <div style="text-align: center; padding: 40px 20px; color: #718096;">
-                    <div style="font-size: 48px; margin-bottom: 15px; color: #9ca3af; font-weight: bold;">□</div>
+                    <i class="material-icons" style="font-size: 48px; margin-bottom: 15px; color: #9ca3af;">history</i>
                     <p style="margin: 0 0 8px 0; font-size: 16px; font-weight: 600; color: #4a5568;">No recent activity yet</p>
                     <p style="margin: 0; font-size: 14px;">Create your first trip to get started!</p>
                 </div>
