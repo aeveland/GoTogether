@@ -10,7 +10,11 @@ export class TripPage {
         this.tripId = props.tripId;
         this.apiService = new ApiService();
         this.trip = null;
+        this.shoppingItems = [];
         this.activeTab = 'overview';
+        
+        // Make this instance globally accessible
+        window.tripPage = this;
         
         // Bind methods
         this.handleTabChange = this.handleTabChange.bind(this);
@@ -160,15 +164,30 @@ export class TripPage {
     /**
      * Load trip data from API
      */
-    async loadTrip() {
+    async loadTripData() {
         try {
-            this.trip = await this.apiService.getTrip(this.tripId);
-            this.renderTripContent();
+            const trip = await this.apiService.getTrip(this.tripId);
+            this.trip = trip.data;
+            this.renderTripHeader();
+            
+            // Load shopping list data
+            await this.loadShoppingList();
+            
+            this.renderTabContent('overview');
         } catch (error) {
-            console.error('Failed to load trip:', error);
-            this.showError('Failed to load trip details. Please try again.');
-        } finally {
-            this.hideLoading();
+            console.error('Error loading trip:', error);
+            this.showError('Failed to load trip details');
+        }
+    }
+
+    async loadShoppingList() {
+        try {
+            const response = await this.apiService.getShoppingList(this.tripId);
+            this.shoppingItems = response.data || [];
+            console.log('Shopping list loaded:', this.shoppingItems);
+        } catch (error) {
+            console.error('Error loading shopping list:', error);
+            this.shoppingItems = [];
         }
     }
 
@@ -322,22 +341,107 @@ export class TripPage {
      * @returns {string} - HTML string
      */
     renderShoppingTab() {
+        const items = this.shoppingItems || [];
+        const categories = ['shelter', 'sleeping', 'cooking', 'water', 'comfort', 'other'];
+        
         return `
             <div class="slide-up">
                 <div class="d-flex justify-between align-center mb-3">
                     <h3 class="mdc-typography--headline6">Shopping List</h3>
-                    <button class="mdc-button mdc-button--raised">
+                    <button class="mdc-button mdc-button--raised" id="add-shopping-item">
                         <span class="mdc-button__ripple"></span>
                         <i class="material-icons mdc-button__icon">add</i>
                         <span class="mdc-button__label">Add Item</span>
                     </button>
                 </div>
-                <div class="text-center p-4">
-                    <i class="material-icons" style="font-size: 64px; color: #ccc;">shopping_cart</i>
-                    <p class="mdc-typography--body1">Shopping list functionality coming soon!</p>
-                </div>
+                
+                ${items.length === 0 ? `
+                    <div class="text-center p-4">
+                        <i class="material-icons" style="font-size: 64px; color: #ccc;">shopping_cart</i>
+                        <p class="mdc-typography--body1">No items in shopping list yet</p>
+                        <p class="mdc-typography--body2">Add items to start planning what to bring!</p>
+                    </div>
+                ` : `
+                    <div class="shopping-list">
+                        ${categories.map(category => {
+                            const categoryItems = items.filter(item => item.category === category);
+                            if (categoryItems.length === 0) return '';
+                            
+                            return `
+                                <div class="category-section mb-4">
+                                    <h4 class="mdc-typography--subtitle1 mb-2" style="text-transform: capitalize; color: #1976d2;">
+                                        <i class="material-icons" style="vertical-align: middle; margin-right: 8px;">
+                                            ${this.getCategoryIcon(category)}
+                                        </i>
+                                        ${category}
+                                    </h4>
+                                    <div class="shopping-items">
+                                        ${categoryItems.map(item => `
+                                            <div class="mdc-card shopping-item ${item.purchased ? 'purchased' : ''}" style="margin-bottom: 8px;">
+                                                <div class="mdc-card__content" style="padding: 12px;">
+                                                    <div class="d-flex align-center">
+                                                        <div class="mdc-checkbox">
+                                                            <input type="checkbox" class="mdc-checkbox__native-control" 
+                                                                   ${item.purchased ? 'checked' : ''} 
+                                                                   onchange="window.tripPage?.togglePurchased(${item.id})">
+                                                            <div class="mdc-checkbox__background">
+                                                                <svg class="mdc-checkbox__checkmark" viewBox="0 0 24 24">
+                                                                    <path class="mdc-checkbox__checkmark-path" fill="none" d="M1.73,12.91 8.1,19.28 22.79,4.59"/>
+                                                                </svg>
+                                                            </div>
+                                                        </div>
+                                                        <div class="flex-1 ml-3">
+                                                            <div class="d-flex justify-between align-center">
+                                                                <span class="mdc-typography--body1 ${item.purchased ? 'text-muted' : ''}" 
+                                                                      style="${item.purchased ? 'text-decoration: line-through;' : ''}">
+                                                                    <strong>${item.name}</strong>
+                                                                    ${item.quantity > 1 ? ` (${item.quantity})` : ''}
+                                                                </span>
+                                                                <div class="item-actions">
+                                                                    ${item.amazon_url ? `
+                                                                        <button class="mdc-icon-button" onclick="window.open('${item.amazon_url}', '_blank')" title="View on Amazon">
+                                                                            <i class="material-icons">shopping_basket</i>
+                                                                        </button>
+                                                                    ` : ''}
+                                                                    <button class="mdc-icon-button" onclick="window.tripPage?.editShoppingItem(${item.id})" title="Edit">
+                                                                        <i class="material-icons">edit</i>
+                                                                    </button>
+                                                                    <button class="mdc-icon-button" onclick="window.tripPage?.deleteShoppingItem(${item.id})" title="Delete">
+                                                                        <i class="material-icons">delete</i>
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                            ${item.notes ? `
+                                                                <p class="mdc-typography--body2 text-muted mt-1">${item.notes}</p>
+                                                            ` : ''}
+                                                            ${item.assigned_to ? `
+                                                                <p class="mdc-typography--caption text-muted">Assigned to: User ${item.assigned_to}</p>
+                                                            ` : ''}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `}
             </div>
         `;
+    }
+
+    getCategoryIcon(category) {
+        const icons = {
+            shelter: 'home',
+            sleeping: 'hotel',
+            cooking: 'restaurant',
+            water: 'local_drink',
+            comfort: 'weekend',
+            other: 'category'
+        };
+        return icons[category] || 'category';
     }
 
     /**
@@ -408,4 +512,87 @@ export class TripPage {
     handleInvite() {
         alert('Invite functionality coming soon!');
     }
+
+    /**
+     * Toggle purchased status of shopping item
+     */
+    async togglePurchased(itemId) {
+        try {
+            const item = this.shoppingItems.find(i => i.id === itemId);
+            if (!item) return;
+
+            await this.apiService.updateShoppingItem(itemId, { 
+                purchased: !item.purchased 
+            });
+            
+            // Update local data
+            item.purchased = !item.purchased;
+            
+            // Re-render shopping tab
+            this.renderTabContent();
+            
+        } catch (error) {
+            console.error('Error updating shopping item:', error);
+            alert('Failed to update item');
+        }
+    }
+
+    /**
+     * Edit shopping item
+     */
+    editShoppingItem(itemId) {
+        const item = this.shoppingItems.find(i => i.id === itemId);
+        if (!item) return;
+
+        const newName = prompt('Item name:', item.name);
+        if (newName && newName !== item.name) {
+            this.updateShoppingItem(itemId, { name: newName });
+        }
+    }
+
+    /**
+     * Delete shopping item
+     */
+    async deleteShoppingItem(itemId) {
+        if (!confirm('Are you sure you want to delete this item?')) return;
+
+        try {
+            await this.apiService.deleteShoppingItem(itemId);
+            
+            // Remove from local data
+            this.shoppingItems = this.shoppingItems.filter(i => i.id !== itemId);
+            
+            // Re-render shopping tab
+            this.renderTabContent();
+            
+        } catch (error) {
+            console.error('Error deleting shopping item:', error);
+            alert('Failed to delete item');
+        }
+    }
+
+    /**
+     * Update shopping item
+     */
+    async updateShoppingItem(itemId, updates) {
+        try {
+            await this.apiService.updateShoppingItem(itemId, updates);
+            
+            // Update local data
+            const item = this.shoppingItems.find(i => i.id === itemId);
+            if (item) {
+                Object.assign(item, updates);
+            }
+            
+            // Re-render shopping tab
+            this.renderTabContent();
+            
+        } catch (error) {
+            console.error('Error updating shopping item:', error);
+            alert('Failed to update item');
+        }
+    }
 }
+
+// Make trip page globally accessible for shopping list interactions
+window.tripPage = null;
