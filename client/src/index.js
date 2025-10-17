@@ -425,15 +425,9 @@ window.showCreateTripForm = function() {
         <div style="min-height: 100vh; background: #f8fafc; padding: 20px; font-family: Arial, sans-serif;">
             <div style="max-width: 600px; margin: 0 auto;">
                 <!-- Header -->
-                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 30px;">
-                    <button onclick="showDashboard(JSON.parse(localStorage.getItem('gotogether_user')))" 
-                            style="background: #e5e7eb; border: none; padding: 10px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
-                        <i class="material-icons" style="font-size: 20px;">arrow_back</i>
-                    </button>
-                    <div>
-                        <h1 style="margin: 0; font-size: 24px; color: #1a202c;">Create New Trip</h1>
-                        <p style="margin: 0; color: #6b7280; font-size: 14px;">Plan your next adventure</p>
-                    </div>
+                <div style="margin-bottom: 30px;">
+                    <h1 style="margin: 0; font-size: 24px; color: #1a202c;">Create New Trip</h1>
+                    <p style="margin: 0; color: #6b7280; font-size: 14px;">Plan your next adventure</p>
                 </div>
 
                 <!-- Form -->
@@ -481,11 +475,11 @@ window.showCreateTripForm = function() {
                         <div id="create-trip-error" style="display: none; background: #fef2f2; color: #dc2626; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 14px;"></div>
 
                         <div style="display: flex; gap: 15px; justify-content: end;">
-                            <button type="button" onclick="showDashboard(JSON.parse(localStorage.getItem('gotogether_user')))"
+                            <button type="button" id="cancel-btn"
                                     style="background: #f3f4f6; color: #374151; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 600;">
                                 Cancel
                             </button>
-                            <button type="submit" 
+                            <button type="button" id="create-btn"
                                     style="background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 600;">
                                 Create Trip
                             </button>
@@ -507,11 +501,18 @@ window.showCreateTripForm = function() {
         </div>
     `;
 
-    // Add form handler
-    document.getElementById('create-trip-form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        console.log('Form submitted');
-        handleCreateTrip(new FormData(e.target));
+    // Add button event listeners
+    document.getElementById('cancel-btn').addEventListener('click', function() {
+        console.log('Cancel button clicked');
+        const user = JSON.parse(localStorage.getItem('gotogether_user'));
+        showDashboard(user);
+    });
+    
+    document.getElementById('create-btn').addEventListener('click', function() {
+        console.log('Create button clicked');
+        const form = document.getElementById('create-trip-form');
+        const formData = new FormData(form);
+        handleCreateTrip(formData);
     });
 };
 
@@ -529,19 +530,23 @@ function handleCreateTrip(formData) {
 
     // Validation
     if (!name || !location || !startDate || !endDate) {
+        console.log('Validation failed: missing fields');
         showCreateTripError('Please fill in all required fields');
         return;
     }
 
     if (new Date(startDate) > new Date(endDate)) {
+        console.log('Validation failed: end date before start date');
         showCreateTripError('End date must be after start date');
         return;
     }
 
-    if (new Date(startDate) < new Date()) {
-        showCreateTripError('Start date cannot be in the past');
-        return;
-    }
+    // Remove past date validation for now to test
+    // if (new Date(startDate) < new Date()) {
+    //     console.log('Validation failed: start date in past');
+    //     showCreateTripError('Start date cannot be in the past');
+    //     return;
+    // }
 
     // Create trip
     const trip = TripStorage.createTrip({
