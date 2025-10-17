@@ -495,7 +495,7 @@ window.showCreateTripForm = function() {
 
                 <!-- Tips -->
                 <div style="background: linear-gradient(135deg, #dbeafe, #bfdbfe); padding: 20px; border-radius: 12px; margin-top: 20px; border: 1px solid #93c5fd;">
-                    <h3 style="margin: 0 0 10px 0; color: #1e40af; font-size: 16px;">💡 Pro Tips</h3>
+                    <h3 style="margin: 0 0 10px 0; color: #1e40af; font-size: 16px; display: flex; align-items: center; gap: 8px;"><i class="material-icons" style="font-size: 18px;">lightbulb</i> Pro Tips</h3>
                     <ul style="margin: 0; padding-left: 20px; color: #1e40af; font-size: 14px;">
                         <li>Choose a descriptive name that gets everyone excited</li>
                         <li>Include specific location details for easy navigation</li>
@@ -510,18 +510,22 @@ window.showCreateTripForm = function() {
     // Add form handler
     document.getElementById('create-trip-form').addEventListener('submit', function(e) {
         e.preventDefault();
+        console.log('Form submitted');
         handleCreateTrip(new FormData(e.target));
     });
 };
 
 // Handle trip creation
 function handleCreateTrip(formData) {
+    console.log('handleCreateTrip called');
     const user = JSON.parse(localStorage.getItem('gotogether_user'));
     const name = formData.get('name').trim();
     const location = formData.get('location').trim();
     const startDate = formData.get('startDate');
     const endDate = formData.get('endDate');
     const description = formData.get('description').trim();
+    
+    console.log('Form data:', { name, location, startDate, endDate, description });
 
     // Validation
     if (!name || !location || !startDate || !endDate) {
