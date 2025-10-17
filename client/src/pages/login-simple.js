@@ -151,7 +151,6 @@ export class LoginPage {
         await this.authService.login(email, password);
         
         // Success - redirect to dashboard
-        console.log('Login successful, redirecting to dashboard...');
         window.location.href = '/dashboard';
     }
 
@@ -177,7 +176,6 @@ export class LoginPage {
         });
         
         // Success - redirect to dashboard
-        console.log('Registration successful, redirecting to dashboard...');
         window.location.href = '/dashboard';
     }
 

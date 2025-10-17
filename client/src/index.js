@@ -1,268 +1,82 @@
-/**
- * Go Together - Main Application Entry Point
- * 
- * This file initializes the Material Design Web components and starts the application.
- * It handles routing, authentication state, and renders the appropriate views.
- */
+console.log('Simple app starting');
 
-import './styles/main.css';
-import { Router } from './utils/router.js';
-import { AuthService } from './utils/auth.js';
-import { ApiService } from './utils/api.js';
-import { ComponentRegistry } from './utils/component-registry.js';
-import './debug.js'; // Load debug functions
+// Detect if running on Vercel (no backend available)
+const isVercelDeployment = window.location.hostname.includes('vercel.app') || window.location.hostname.includes('netlify.app');
 
-// Import page components
-import { LoginPage } from './pages/login.js';
-import { DashboardPage } from './pages/dashboard.js';
-import { TripPage } from './pages/trip.js';
-import { ProfilePage } from './pages/profile.js';
-
-class GoTogetherApp {
-    constructor() {
-        this.router = new Router();
-        this.authService = new AuthService();
-        this.apiService = new ApiService();
-        this.componentRegistry = new ComponentRegistry();
+document.addEventListener('DOMContentLoaded', function() {
+    const app = document.getElementById('app');
+    
+    app.innerHTML = '<div style="padding: 40px; text-align: center; font-family: Arial;"><h1>Go Together</h1><p>Loading...</p></div>';
+    
+    // Simple login form
+    setTimeout(function() {
+        const demoNote = isVercelDeployment ? '<div style="background: #e3f2fd; padding: 10px; border-radius: 4px; margin-bottom: 15px; font-size: 12px; color: #1976d2;"><strong>Demo Mode:</strong> Use email: demo@example.com, password: demo123</div>' : '';
         
-        this.init();
-    }
-
-    /**
-     * Initialize the application
-     */
-    async init() {
-        try {
-            console.log('Starting app initialization...');
-            
-            // Initialize Material Design Web components
-            console.log('Initializing MDC components...');
-            this.initMDCComponents();
-            
-            // Register page components
-            console.log('Registering page components...');
-            this.registerComponents();
-            
-            // Set up routing
-            console.log('Setting up routing...');
-            this.setupRouting();
-            
-            // Make router globally accessible for navigation from components
-            window.goTogetherRouter = this.router;
-            
-            // Check authentication status
-            console.log('Checking authentication status...');
-            await this.checkAuthStatus();
+        app.innerHTML = '<div style="max-width: 400px; margin: 50px auto; padding: 30px; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); font-family: Arial;"><h1 style="color: #1976d2; text-align: center;">Login</h1>' + demoNote + '<form id="login-form"><div style="margin-bottom: 15px;"><label>Email:</label><input type="email" name="email" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;" value="' + (isVercelDeployment ? 'demo@example.com' : '') + '"></div><div style="margin-bottom: 15px;"><label>Password:</label><input type="password" name="password" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;" value="' + (isVercelDeployment ? 'demo123' : '') + '"></div><button type="submit" style="width: 100%; padding: 15px; background: #1976d2; color: white; border: none; border-radius: 4px; cursor: pointer;">Login</button></form><div id="result"></div></div>';
         
-            // Start the router
-            console.log('Starting router...');
-            this.router.start();
+        document.getElementById('login-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const email = formData.get('email');
+            const password = formData.get('password');
             
-            // Hide loading spinner after everything is ready
-            console.log('Hiding loading spinner...');
-            this.hideLoadingSpinner();
-            
-            console.log('Go Together app initialized successfully');
-        } catch (error) {
-            console.error('Failed to initialize app:', error);
-            this.hideLoadingSpinner();
-            this.showError('Failed to load application. Please refresh the page.');
-        }
-    }
-
-    /**
-     * Hide the loading spinner and show the app
-     */
-    hideLoadingSpinner() {
-        const loadingContainer = document.querySelector('.loading-container');
-        if (loadingContainer) {
-            loadingContainer.style.display = 'none';
-        }
-    }
-
-    /**
-     * Initialize Material Design Web components
-     */
-    initMDCComponents() {
-        // Auto-initialize all MDC components on the page
-        if (window.mdc && window.mdc.autoInit) {
-            window.mdc.autoInit();
-        }
-    }
-
-    /**
-     * Register all page components with the component registry
-     */
-    registerComponents() {
-        this.componentRegistry.register('login-page', LoginPage);
-        this.componentRegistry.register('dashboard-page', DashboardPage);
-        this.componentRegistry.register('trip-page', TripPage);
-        this.componentRegistry.register('profile-page', ProfilePage);
-    }
-
-    /**
-     * Set up application routing
-     */
-    setupRouting() {
-        // Public routes (no authentication required)
-        this.router.addRoute('/', () => this.renderPage('login-page'));
-        this.router.addRoute('/login', () => this.renderPage('login-page'));
-        this.router.addRoute('/signup', () => this.renderPage('login-page', { mode: 'signup' }));
-        
-        // Protected routes (authentication required)
-        this.router.addRoute('/dashboard', () => this.requireAuth(() => this.renderPage('dashboard-page')));
-        this.router.addRoute('/trip/:id', (params) => this.requireAuth(() => this.renderPage('trip-page', { tripId: params.id })));
-        this.router.addRoute('/profile', () => this.requireAuth(() => this.renderPage('profile-page')));
-        
-        // Default route
-        this.router.setDefaultRoute('/dashboard');
-    }
-
-    /**
-     * Check if user is authenticated and redirect accordingly
-     */
-    async checkAuthStatus() {
-        console.log('Checking auth status...');
-        const isAuthenticated = await this.authService.isAuthenticated();
-        const currentPath = window.location.pathname;
-        
-        console.log('Auth status:', isAuthenticated, 'Current path:', currentPath);
-        
-        if (isAuthenticated && (currentPath === '/' || currentPath === '/login' || currentPath === '/signup')) {
-            // User is authenticated but on a public page, redirect to dashboard
-            console.log('User authenticated on public page, redirecting to dashboard');
-            this.router.navigate('/dashboard');
-        } else if (!isAuthenticated && !this.isPublicRoute(currentPath)) {
-            // User is not authenticated but trying to access protected route
-            console.log('User not authenticated on protected route, redirecting to login');
-            this.router.navigate('/login');
-        } else {
-            console.log('No redirect needed');
-        }
-    }
-
-    /**
-     * Check if a route is public (doesn't require authentication)
-     */
-    isPublicRoute(path) {
-        const publicRoutes = ['/', '/login', '/signup'];
-        return publicRoutes.includes(path);
-    }
-
-    /**
-     * Middleware to require authentication for protected routes
-     */
-    requireAuth(callback) {
-        return async () => {
-            console.log('RequireAuth: Checking authentication for protected route...');
-            const isAuthenticated = await this.authService.isAuthenticated();
-            console.log('RequireAuth: Authentication result:', isAuthenticated);
-            
-            if (isAuthenticated) {
-                console.log('RequireAuth: User is authenticated, rendering page');
-                callback();
-            } else {
-                console.log('RequireAuth: User not authenticated, redirecting to login');
-                this.router.navigate('/login');
+            try {
+                let data;
+                
+                if (isVercelDeployment) {
+                    // Mock API for demo deployment
+                    if (email === 'demo@example.com' && password === 'demo123') {
+                        data = {
+                            success: true,
+                            data: {
+                                user: { id: 1, name: 'Demo User', email: 'demo@example.com' },
+                                token: 'demo-token-12345'
+                            }
+                        };
+                    } else {
+                        throw new Error('Invalid demo credentials. Use demo@example.com / demo123');
+                    }
+                } else {
+                    // Real API for local development
+                    const response = await fetch('/api/auth/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: email, password: password })
+                    });
+                    
+                    data = await response.json();
+                    
+                    if (!response.ok) {
+                        throw new Error(data.message || 'Login failed');
+                    }
+                }
+                
+                localStorage.setItem('gotogether_token', data.data.token);
+                localStorage.setItem('gotogether_user', JSON.stringify(data.data.user));
+                
+                // Show dashboard
+                const deploymentNote = isVercelDeployment ? '<div style="background: #fff3e0; padding: 10px; border-radius: 4px; margin-bottom: 15px; font-size: 12px; color: #f57c00;">This is a demo deployment. Full backend features are available in the local version.</div>' : '';
+                app.innerHTML = '<div style="padding: 40px; font-family: Arial;">' + deploymentNote + '<h1>Welcome ' + data.data.user.name + '!</h1><p>You are logged in successfully.</p><div style="margin: 20px 0;"><button onclick="showTrips()" style="padding: 10px 20px; background: #4caf50; color: white; border: none; border-radius: 4px; cursor: pointer; margin-right: 10px;">My Trips</button><button onclick="logout()" style="padding: 10px 20px; background: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer;">Logout</button></div><div id="dashboard-content"></div></div>';
+                
+            } catch (error) {
+                document.getElementById('result').innerHTML = '<div style="color: red; margin-top: 10px;">Error: ' + error.message + '</div>';
             }
-        };
-    }
-
-    /**
-     * Render a page component
-     */
-    renderPage(componentName, props = {}) {
-        const app = document.getElementById('app');
-        const ComponentClass = this.componentRegistry.get(componentName);
-        
-        if (ComponentClass) {
-            // Clear existing content
-            app.innerHTML = '';
-            
-            // Create and render the component
-            const component = new ComponentClass(props);
-            app.appendChild(component.render());
-            
-            // Re-initialize MDC components for the new content
-            this.initMDCComponents();
-        } else {
-            console.error(`Component ${componentName} not found`);
-            this.showError('Page not found');
-        }
-    }
-
-    /**
-     * Show an error message to the user
-     */
-    showError(message) {
-        const app = document.getElementById('app');
-        app.innerHTML = `
-            <div class="error-container">
-                <div class="mdc-card error-card">
-                    <div class="mdc-card__primary-action">
-                        <div class="mdc-card__content">
-                            <h2 class="mdc-typography--headline6">Error</h2>
-                            <p class="mdc-typography--body2">${message}</p>
-                        </div>
-                    </div>
-                    <div class="mdc-card__actions">
-                        <button class="mdc-button mdc-card__action mdc-card__action--button" onclick="window.location.reload()">
-                            <span class="mdc-button__label">Reload Page</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-}
-
-// Add a global flag to indicate the script loaded
-console.log('Go Together main script loaded successfully');
-window.goTogetherScriptLoaded = true;
-
-// Initialize the application when the DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM loaded, initializing Go Together app...');
-    try {
-        new GoTogetherApp();
-    } catch (error) {
-        console.error('Failed to initialize Go Together app:', error);
-        // Show error to user
-        const app = document.getElementById('app');
-        if (app) {
-            app.innerHTML = `
-                <div style="padding: 20px; text-align: center;">
-                    <h2>Failed to Load Application</h2>
-                    <p>There was an error loading Go Together. Please check the console for details.</p>
-                    <p><strong>Error:</strong> ${error.message}</p>
-                    <button onclick="window.location.reload()">Reload Page</button>
-                </div>
-            `;
-        }
-    }
+        });
+    }, 100);
 });
 
-// Also try to initialize if DOM is already loaded
-if (document.readyState === 'loading') {
-    // DOM is still loading
-    console.log('DOM is loading, waiting for DOMContentLoaded...');
-} else {
-    // DOM is already loaded
-    console.log('DOM already loaded, initializing Go Together app immediately...');
-    try {
-        new GoTogetherApp();
-    } catch (error) {
-        console.error('Failed to initialize Go Together app:', error);
-        const app = document.getElementById('app');
-        if (app) {
-            app.innerHTML = `
-                <div style="padding: 20px; text-align: center;">
-                    <h2>Failed to Load Application</h2>
-                    <p>There was an error loading Go Together. Please check the console for details.</p>
-                    <p><strong>Error:</strong> ${error.message}</p>
-                    <button onclick="window.location.reload()">Reload Page</button>
-                </div>
-            `;
-        }
+window.logout = function() {
+    localStorage.removeItem('gotogether_token');
+    localStorage.removeItem('gotogether_user');
+    location.reload();
+};
+
+window.showTrips = function() {
+    const content = document.getElementById('dashboard-content');
+    if (isVercelDeployment) {
+        // Mock trips for demo
+        content.innerHTML = '<div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-top: 20px;"><h3>Demo Trips</h3><div style="border: 1px solid #ddd; padding: 15px; border-radius: 4px; margin: 10px 0;"><h4>Yosemite Adventure</h4><p>Weekend camping in beautiful Yosemite National Park</p><small>Nov 15-17, 2025</small></div><div style="border: 1px solid #ddd; padding: 15px; border-radius: 4px; margin: 10px 0;"><h4>Big Sur Coastal Trip</h4><p>Scenic coastal camping along the Big Sur coastline</p><small>Dec 1-3, 2025</small></div></div>';
+    } else {
+        content.innerHTML = '<div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-top: 20px;"><h3>Your Trips</h3><p>Trip functionality will be implemented with the full backend.</p></div>';
     }
-}
+};

@@ -1,10 +1,10 @@
 /**
- * Simple Login Page Component - WORKING VERSION
- * Handles user authentication (login and registration) without complex validation
+ * Simple Authentication Page
+ * Basic login and registration without complex validation
  */
 import { AuthService } from '../utils/auth.js';
 
-export class LoginPage {
+export class SimpleAuthPage {
     constructor(props = {}) {
         this.props = props;
         this.authService = new AuthService();
@@ -151,8 +151,7 @@ export class LoginPage {
         await this.authService.login(email, password);
         
         // Success - redirect to dashboard
-        console.log('Login successful, redirecting to dashboard...');
-        window.location.href = '/dashboard';
+        this.redirectToDashboard();
     }
 
     async handleSignup(data) {
@@ -177,7 +176,11 @@ export class LoginPage {
         });
         
         // Success - redirect to dashboard
-        console.log('Registration successful, redirecting to dashboard...');
+        this.redirectToDashboard();
+    }
+
+    redirectToDashboard() {
+        // Simple redirect approach
         window.location.href = '/dashboard';
     }
 

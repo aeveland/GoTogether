@@ -52,8 +52,8 @@ export class AuthService {
             }
 
             // Store token and user data
-            this.setToken(data.token);
-            this.setUser(data.user);
+            this.setToken(data.data.token);
+            this.setUser(data.data.user);
 
             return data;
         } catch (error) {
@@ -84,8 +84,8 @@ export class AuthService {
             }
 
             // Store token and user data
-            this.setToken(data.token);
-            this.setUser(data.user);
+            this.setToken(data.data.token);
+            this.setUser(data.data.user);
 
             return data;
         } catch (error) {
