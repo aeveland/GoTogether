@@ -529,15 +529,11 @@ window.showCreateTripForm = function() {
         handleCreateTrip(formData);
     });
     
-    // Initialize Google Places Autocomplete
-    if (window.google && window.google.maps) {
+    // Initialize Google Places Autocomplete with proper error handling
+    setTimeout(function() {
+        console.log('Attempting to initialize Google Places...');
         initializeLocationAutocomplete();
-    } else {
-        // Wait for Google Maps to load
-        window.addEventListener('load', function() {
-            setTimeout(initializeLocationAutocomplete, 1000);
-        });
-    }
+    }, 500);
 };
 
 // Handle trip creation
@@ -865,37 +861,58 @@ window.browseTrips = function() {
 
 // Global variable to store selected place data
 let selectedPlaceData = null;
+let googleMapsLoaded = false;
+
+// Google Maps callback function
+window.initMap = function() {
+    console.log('Google Maps API loaded successfully');
+    googleMapsLoaded = true;
+};
 
 // Initialize Google Places Autocomplete
 function initializeLocationAutocomplete() {
     const locationInput = document.getElementById('location-input');
-    if (!locationInput || !window.google) return;
+    if (!locationInput) {
+        console.log('Location input not found');
+        return;
+    }
     
-    const autocomplete = new google.maps.places.Autocomplete(locationInput, {
-        types: ['establishment', 'geocode'],
-        fields: ['place_id', 'formatted_address', 'name', 'geometry', 'photos']
-    });
+    if (!googleMapsLoaded || !window.google || !window.google.maps || !window.google.maps.places) {
+        console.log('Google Maps API not ready, skipping autocomplete');
+        return;
+    }
     
-    autocomplete.addListener('place_changed', function() {
-        const place = autocomplete.getPlace();
+    try {
+        console.log('Creating Google Places Autocomplete...');
         
-        if (!place.geometry) {
-            console.log('No geometry found for place');
-            return;
-        }
+        // Create autocomplete instance
+        const autocomplete = new google.maps.places.Autocomplete(locationInput, {
+            types: ['(cities)'],
+            fields: ['place_id', 'formatted_address', 'name', 'geometry']
+        });
         
-        // Store the selected place data globally
-        selectedPlaceData = {
-            placeId: place.place_id,
-            formattedAddress: place.formatted_address,
-            name: place.name,
-            lat: place.geometry.location.lat(),
-            lng: place.geometry.location.lng(),
-            photos: place.photos ? place.photos.slice(0, 1) : null
-        };
+        // Handle place selection
+        autocomplete.addListener('place_changed', function() {
+            const place = autocomplete.getPlace();
+            console.log('Place selected:', place);
+            
+            if (place && place.geometry) {
+                selectedPlaceData = {
+                    placeId: place.place_id,
+                    formattedAddress: place.formatted_address,
+                    name: place.name,
+                    lat: place.geometry.location.lat(),
+                    lng: place.geometry.location.lng()
+                };
+                console.log('Place data stored:', selectedPlaceData);
+            }
+        });
         
-        console.log('Selected place:', selectedPlaceData);
-    });
+        console.log('Google Places autocomplete initialized');
+        
+    } catch (error) {
+        console.error('Failed to initialize Google Places:', error);
+    }
 }
 
 // Generate Google Static Maps URL
