@@ -32,30 +32,39 @@ class GoTogetherApp {
      */
     async init() {
         try {
-            // Hide loading spinner
-            this.hideLoadingSpinner();
+            console.log('Starting app initialization...');
             
             // Initialize Material Design Web components
+            console.log('Initializing MDC components...');
             this.initMDCComponents();
             
             // Register page components
+            console.log('Registering page components...');
             this.registerComponents();
             
             // Set up routing
+            console.log('Setting up routing...');
             this.setupRouting();
-            
-            // Check authentication status
-            await this.checkAuthStatus();
             
             // Make router globally accessible for navigation from components
             window.goTogetherRouter = this.router;
+            
+            // Check authentication status
+            console.log('Checking authentication status...');
+            await this.checkAuthStatus();
         
             // Start the router
+            console.log('Starting router...');
             this.router.start();
+            
+            // Hide loading spinner after everything is ready
+            console.log('Hiding loading spinner...');
+            this.hideLoadingSpinner();
             
             console.log('Go Together app initialized successfully');
         } catch (error) {
             console.error('Failed to initialize app:', error);
+            this.hideLoadingSpinner();
             this.showError('Failed to load application. Please refresh the page.');
         }
     }
@@ -203,5 +212,45 @@ class GoTogetherApp {
 
 // Initialize the application when the DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    new GoTogetherApp();
+    console.log('DOM loaded, initializing Go Together app...');
+    try {
+        new GoTogetherApp();
+    } catch (error) {
+        console.error('Failed to initialize Go Together app:', error);
+        // Show error to user
+        const app = document.getElementById('app');
+        if (app) {
+            app.innerHTML = `
+                <div style="padding: 20px; text-align: center;">
+                    <h2>Failed to Load Application</h2>
+                    <p>There was an error loading Go Together. Please check the console for details.</p>
+                    <button onclick="window.location.reload()">Reload Page</button>
+                </div>
+            `;
+        }
+    }
 });
+
+// Also try to initialize if DOM is already loaded
+if (document.readyState === 'loading') {
+    // DOM is still loading
+    console.log('DOM is loading, waiting for DOMContentLoaded...');
+} else {
+    // DOM is already loaded
+    console.log('DOM already loaded, initializing Go Together app immediately...');
+    try {
+        new GoTogetherApp();
+    } catch (error) {
+        console.error('Failed to initialize Go Together app:', error);
+        const app = document.getElementById('app');
+        if (app) {
+            app.innerHTML = `
+                <div style="padding: 20px; text-align: center;">
+                    <h2>Failed to Load Application</h2>
+                    <p>There was an error loading Go Together. Please check the console for details.</p>
+                    <button onclick="window.location.reload()">Reload Page</button>
+                </div>
+            `;
+        }
+    }
+}

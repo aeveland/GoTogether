@@ -8,13 +8,17 @@ import config from '../config.js';
 
 export class ApiService {
     constructor() {
+        console.log('ApiService constructor, config:', config);
         this.baseUrl = config.API_BASE_URL;
         this.authService = new AuthService();
         
         // Use mock API for demo deployments
         if (config.API_BASE_URL === '/api/mock') {
+            console.log('Using MockApiService for demo mode');
             return new MockApiService();
         }
+        
+        console.log('Using real ApiService with baseUrl:', this.baseUrl);
     }
 
     /**

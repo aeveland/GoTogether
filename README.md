@@ -149,6 +149,43 @@ goTogether/
    npm start
    ```
 
+## Deployment
+
+### Deploy to Vercel (Frontend Only - Demo Mode)
+
+The easiest way to deploy Go Together is as a frontend-only demo to Vercel:
+
+1. **Connect to Vercel**:
+   - Go to [vercel.com](https://vercel.com)
+   - Import your GitHub repository
+   - Vercel will automatically detect the configuration
+
+2. **Automatic Deployment**:
+   - The `vercel.json` configuration handles the build
+   - Demo mode uses mock data (no backend required)
+   - Perfect for showcasing the UI and functionality
+
+3. **Demo Credentials**:
+   - Email: `demo@example.com`
+   - Password: `Demo123`
+
+### Deploy Full-Stack Application
+
+For a complete deployment with backend:
+
+1. **Backend Options**:
+   - Railway, Render, or Heroku for the Node.js backend
+   - Deploy the SQLite database or migrate to PostgreSQL
+
+2. **Frontend Configuration**:
+   - Update `client/src/config.js` with your backend URL
+   - Deploy frontend to Vercel, Netlify, or serve from backend
+
+3. **Environment Variables**:
+   - Set `JWT_SECRET` for production
+   - Configure database connection
+   - Set up email service for invitations
+
 ## API Documentation
 
 ### Authentication Endpoints
