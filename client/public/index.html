@@ -60,5 +60,55 @@
     
     <!-- Material Design Web JavaScript -->
     <script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
+    
+    <!-- Debug script to test if JavaScript is running at all -->
+    <script>
+        console.log('HTML script loaded - JavaScript is working');
+        
+        // Test if we can access the DOM
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOMContentLoaded fired from HTML script');
+            
+            // If the main app doesn't load in 5 seconds, show an error
+            setTimeout(function() {
+                const loadingContainer = document.querySelector('.loading-container');
+                if (loadingContainer && loadingContainer.style.display !== 'none') {
+                    console.error('App failed to load within 5 seconds');
+                    console.log('Main script loaded:', !!window.goTogetherScriptLoaded);
+                    
+                    const app = document.getElementById('app');
+                    if (app) {
+                        const scriptLoaded = window.goTogetherScriptLoaded;
+                        app.innerHTML = `
+                            <div style="padding: 20px; text-align: center; font-family: Arial, sans-serif;">
+                                <h2 style="color: #d32f2f;">App Loading Failed</h2>
+                                <p><strong>Main Script Loaded:</strong> ${scriptLoaded ? 'Yes' : 'No'}</p>
+                                <p>The Go Together app failed to initialize. This might be due to:</p>
+                                <ul style="text-align: left; max-width: 500px; margin: 0 auto;">
+                                    ${!scriptLoaded ? '<li><strong>JavaScript bundle failed to load</strong></li>' : ''}
+                                    <li>Module import/export errors</li>
+                                    <li>Network connectivity issues</li>
+                                    <li>Browser compatibility issues</li>
+                                </ul>
+                                <p><strong>Debug Info:</strong></p>
+                                <ul style="text-align: left; max-width: 500px; margin: 0 auto; font-size: 12px;">
+                                    <li>Hostname: ${window.location.hostname}</li>
+                                    <li>User Agent: ${navigator.userAgent.substring(0, 50)}...</li>
+                                    <li>Script Loaded: ${scriptLoaded}</li>
+                                </ul>
+                                <p><strong>Please check the browser console for error details.</strong></p>
+                                <button onclick="window.location.reload()" style="padding: 10px 20px; margin: 10px; cursor: pointer;">
+                                    Reload Page
+                                </button>
+                                <button onclick="console.log('Console test - this should appear in console')" style="padding: 10px 20px; margin: 10px; cursor: pointer;">
+                                    Test Console
+                                </button>
+                            </div>
+                        `;
+                    }
+                }
+            }, 5000);
+        });
+    </script>
 </body>
 </html>

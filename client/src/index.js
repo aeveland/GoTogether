@@ -210,6 +210,10 @@ class GoTogetherApp {
     }
 }
 
+// Add a global flag to indicate the script loaded
+console.log('Go Together main script loaded successfully');
+window.goTogetherScriptLoaded = true;
+
 // Initialize the application when the DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     console.log('DOM loaded, initializing Go Together app...');
@@ -224,6 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div style="padding: 20px; text-align: center;">
                     <h2>Failed to Load Application</h2>
                     <p>There was an error loading Go Together. Please check the console for details.</p>
+                    <p><strong>Error:</strong> ${error.message}</p>
                     <button onclick="window.location.reload()">Reload Page</button>
                 </div>
             `;
@@ -248,6 +253,7 @@ if (document.readyState === 'loading') {
                 <div style="padding: 20px; text-align: center;">
                     <h2>Failed to Load Application</h2>
                     <p>There was an error loading Go Together. Please check the console for details.</p>
+                    <p><strong>Error:</strong> ${error.message}</p>
                     <button onclick="window.location.reload()">Reload Page</button>
                 </div>
             `;
