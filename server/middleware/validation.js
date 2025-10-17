@@ -39,8 +39,8 @@ const validateUserRegistration = [
         .withMessage('Please provide a valid email address'),
     
     body('password')
-        .isLength({ min: 6, max: 128 })
-        .withMessage('Password must be between 6 and 128 characters'),
+        .isLength({ min: 1 })
+        .withMessage('Password is required'),
     
     body('bio')
         .optional()

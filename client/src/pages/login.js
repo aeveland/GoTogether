@@ -297,7 +297,7 @@ export class LoginPage {
         
         const { name, email, password, confirmPassword } = data;
         
-        // Validation
+        // Minimal validation - just check fields exist
         if (!name || !email || !password || !confirmPassword) {
             throw new Error('Please fill in all fields');
         }
@@ -306,12 +306,7 @@ export class LoginPage {
             throw new Error('Passwords do not match');
         }
 
-        if (password.length < 6) {
-            throw new Error('Password must be at least 6 characters long');
-        }
-
-        // Simplified password validation - just require 6+ characters
-        // More complex validation can be added later if needed
+        // No other validation - keep it simple
 
         const userData = {
             name: name.trim(),
