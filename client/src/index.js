@@ -154,10 +154,15 @@ class GoTogetherApp {
      */
     requireAuth(callback) {
         return async () => {
+            console.log('RequireAuth: Checking authentication for protected route...');
             const isAuthenticated = await this.authService.isAuthenticated();
+            console.log('RequireAuth: Authentication result:', isAuthenticated);
+            
             if (isAuthenticated) {
+                console.log('RequireAuth: User is authenticated, rendering page');
                 callback();
             } else {
+                console.log('RequireAuth: User not authenticated, redirecting to login');
                 this.router.navigate('/login');
             }
         };

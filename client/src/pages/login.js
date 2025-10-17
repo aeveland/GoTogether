@@ -262,13 +262,22 @@ export class LoginPage {
 
         await this.authService.login(email.trim(), password);
         
+        console.log('Login successful, attempting navigation...');
+        console.log('Router available:', !!window.goTogetherRouter);
+        
         // Redirect to dashboard on successful login
         if (window.goTogetherRouter) {
+            console.log('Using router to navigate to dashboard');
             window.goTogetherRouter.navigate('/dashboard');
         } else {
-            // Fallback to page reload if router not available
+            console.log('Router not available, using window.location');
             window.location.href = '/dashboard';
         }
+        
+        // Add a small delay to see if navigation is working
+        setTimeout(() => {
+            console.log('Current URL after navigation attempt:', window.location.href);
+        }, 100);
     }
 
     /**
