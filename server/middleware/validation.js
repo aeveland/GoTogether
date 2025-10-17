@@ -40,9 +40,7 @@ const validateUserRegistration = [
     
     body('password')
         .isLength({ min: 6, max: 128 })
-        .withMessage('Password must be between 6 and 128 characters')
-        .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
-        .withMessage('Password must contain at least one lowercase letter, one uppercase letter, and one number'),
+        .withMessage('Password must be between 6 and 128 characters'),
     
     body('bio')
         .optional()
@@ -417,9 +415,7 @@ const validateNewPassword = [
     
     body('newPassword')
         .isLength({ min: 6, max: 128 })
-        .withMessage('Password must be between 6 and 128 characters')
-        .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
-        .withMessage('Password must contain at least one lowercase letter, one uppercase letter, and one number'),
+        .withMessage('Password must be between 6 and 128 characters'),
     
     handleValidationErrors
 ];

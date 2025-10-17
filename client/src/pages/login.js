@@ -311,10 +311,8 @@ export class LoginPage {
             throw new Error('Password must be at least 6 characters long');
         }
 
-        // Check password complexity
-        if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
-            throw new Error('Password must contain at least one lowercase letter, one uppercase letter, and one number. Example: "MyPass123"');
-        }
+        // Simplified password validation - just require 6+ characters
+        // More complex validation can be added later if needed
 
         const userData = {
             name: name.trim(),
