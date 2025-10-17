@@ -10,6 +10,7 @@ import { Router } from './utils/router.js';
 import { AuthService } from './utils/auth.js';
 import { ApiService } from './utils/api.js';
 import { ComponentRegistry } from './utils/component-registry.js';
+import './debug.js'; // Load debug functions
 
 // Import page components
 import { LoginPage } from './pages/login.js';
